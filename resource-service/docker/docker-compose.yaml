@@ -1,0 +1,14 @@
+services:
+    resource_db:
+        build: .
+        restart: always
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: secret
+        ports:
+            - "5433:5432"
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8888:8080
