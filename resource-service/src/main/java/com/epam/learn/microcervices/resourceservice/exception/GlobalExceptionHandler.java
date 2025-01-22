@@ -39,62 +39,70 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ProblemDetails onMethodArgumentTypeMismatchException(@NonNull final MethodArgumentTypeMismatchException exception) {
+    public ResponseEntity<ProblemDetails> onMethodArgumentTypeMismatchException(
+            @NonNull final MethodArgumentTypeMismatchException exception) {
+
         log.info("MethodArgumentTypeMismatchException was detected: ", exception);
         final Map<String, String> validationErrors = Map.of(
                 Objects.requireNonNull(exception.getPropertyName()),
                 exception.getMessage());
 
-        return buildValidationError(validationErrors);
+        return ResponseEntity.badRequest().body(buildValidationError(validationErrors));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ProblemDetails onMethodArgumentNotValidException(@NonNull final MethodArgumentNotValidException exception) {
+    public ResponseEntity<ProblemDetails> onMethodArgumentNotValidException(
+            @NonNull final MethodArgumentNotValidException exception) {
+
         log.info("MethodArgumentNotValidException was detected: ", exception);
         final Map<String, String> validationErrors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(FieldError::getField, this::fetchFieldErrorMessage));
 
-        return buildValidationError(validationErrors);
+        return ResponseEntity.badRequest().body(buildValidationError(validationErrors));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ProblemDetails onConstraintViolationException(@NonNull final ConstraintViolationException exception) {
+    public ResponseEntity<ProblemDetails> onConstraintViolationException(
+            @NonNull final ConstraintViolationException exception) {
+
         log.info("ConstraintViolationException was detected: ", exception);
         final Map<String, String> validationErrors = exception.getConstraintViolations()
                 .stream()
                 .collect(Collectors.toMap(violation -> violation.getPropertyPath().toString(),
                         ConstraintViolation::getMessage));
 
-        return buildValidationError(validationErrors);
+        return ResponseEntity.badRequest().body(buildValidationError(validationErrors));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ProblemDetails onHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception) {
+    public ResponseEntity<ProblemDetails> onHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException exception) {
+
         log.info("HttpMediaTypeNotSupportedException was detected: ", exception);
-        return ProblemDetails.builder()
-                .errorMessage(exception.getMessage())
-                .errorCode("400")
-                .build();
+        return ResponseEntity.badRequest()
+                .body(ProblemDetails.builder()
+                        .errorMessage(exception.getMessage())
+                        .errorCode("400")
+                        .build());
     }
 
     @ExceptionHandler(value = DataAccessException.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ProblemDetails onDataAccessException(@NonNull final DataAccessException exception) {
+
+    public ResponseEntity<ProblemDetails> onDataAccessException(@NonNull final DataAccessException exception) {
+
         log.error("DataAccessException was detected: ", exception);
-        return buildProblemDetails(ErrorProblemTypes.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.internalServerError()
+                .body(buildProblemDetails(ErrorProblemTypes.INTERNAL_SERVER_ERROR).build());
     }
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ProblemDetails onException(@NonNull final Exception exception) {
+    public ResponseEntity<ProblemDetails> onException(@NonNull final Exception exception) {
+
         log.error("Exception was detected: ", exception);
-        return buildProblemDetails(ErrorProblemTypes.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.internalServerError()
+                .body(buildProblemDetails(ErrorProblemTypes.INTERNAL_SERVER_ERROR).build());
     }
 
     private ProblemDetails buildValidationError(final Map<String, String> validationErrors) {

@@ -2,6 +2,8 @@ package com.epam.learn.microcervices.songservice.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,29 +33,37 @@ public class SongController {
 
     private final SongServiceImpl songService;
 
-    @GetMapping("/{id}")
-    public SongMetadataDto findSongMetadata(
+    @GetMapping(
+            path="/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<SongMetadataDto> findSongMetadata(
             @Valid
             @Pattern(regexp = SONG_METADATA_ID_PATTERN, message = "id must be numeric string")
             @PathVariable final String id) {
 
-        return songService.findSongMetadata(id);
+        return ResponseEntity.ok(songService.findSongMetadata(id));
     }
 
-    @PostMapping
-    public SongMetadataSavedResponse saveSongMetadata(@Valid @RequestBody final SongMetadataDto songMetadata) {
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<SongMetadataSavedResponse> saveSongMetadata(@Valid @RequestBody final SongMetadataDto songMetadata) {
 
         final String savedSongMetadataId = songService.saveSongMetadata(songMetadata);
-        return new SongMetadataSavedResponse(savedSongMetadataId);
+        return ResponseEntity.ok(new SongMetadataSavedResponse(savedSongMetadataId));
     }
 
-    @DeleteMapping
-    public SongsMetadataDeletedResponse deleteSongsMetadata(
+    @DeleteMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<SongsMetadataDeletedResponse> deleteSongsMetadata(
             @Valid
             @ValidSongMetadataIdsList
             @RequestParam(name = "id") final List<String> ids) {
 
         final List<String> deletedSongsIds = songService.deleteSongsMetadata(ids);
-        return new SongsMetadataDeletedResponse(deletedSongsIds);
+        return ResponseEntity.ok(new SongsMetadataDeletedResponse(deletedSongsIds));
     }
 }
