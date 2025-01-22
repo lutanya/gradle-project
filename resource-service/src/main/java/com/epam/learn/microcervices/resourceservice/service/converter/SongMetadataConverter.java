@@ -13,7 +13,7 @@ import com.epam.learn.microcervices.resourceservice.dto.SongMetadataDto;
 public class SongMetadataConverter {
 
     private static final String SONG_ALBUM_METADATA_NAME = "xmpDM:album";
-    private static final String SONG_ARTIST_METADATA_NAME = "xmpDM:albumArtist";
+    private static final String SONG_ARTIST_METADATA_NAME = "xmpDM:artist";
     private static final String SONG_DURATION_FORMAT = "%02d:%02d";
     private static final String SONG_DURATION_METADATA_NAME = "xmpDM:duration";
     private static final String SONG_TITLE_METADATA_NAME = "dc:title";
