@@ -1,8 +1,0 @@
-services:
-    song_metadata_db:
-        build: .
-        environment:
-            POSTGRES_USER: user
-            POSTGRES_PASSWORD: secret
-        ports:
-            - "5432:5432"

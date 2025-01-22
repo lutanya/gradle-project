@@ -1,6 +1,3 @@
-CREATE DATABASE songdb;
-\c songdb;
-
 CREATE TABLE songs (
   id TEXT PRIMARY KEY,
   name varchar(100) NOT NULL,

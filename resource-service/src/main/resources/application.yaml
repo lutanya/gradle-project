@@ -2,9 +2,9 @@ spring:
     application:
         name: resource-service
     datasource:
-        url: jdbc:postgresql://localhost:5433/resourcedb
-        username: user
-        password: secret
+        url: ${RESOURCE_DB_URL:jdbc:postgresql://localhost:5433/resourcedb}
+        username: ${POSTGRES_USER:user}
+        password: ${POSTGRES_PASSWORD:secret}
     jpa:
         hibernate:
             ddl-auto: none
@@ -16,7 +16,7 @@ server:
     port: 8181
 
 song-service:
-    baseUrl: http://localhost:8282/songs
+    baseUrl: ${SONG_SERVICE_BASE_URL:http://localhost:8282/songs}
     connectionTimeout: 1000
     readTimeout: 1000
 
