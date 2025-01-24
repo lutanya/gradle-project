@@ -11,6 +11,8 @@
         </layout>
     </appender>
 
+    <logger name="org.springframework.retry" level="DEBUG"/>
+
     <root level="INFO">
         <appender-ref ref="Console" />
     </root>

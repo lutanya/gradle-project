@@ -22,7 +22,7 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class SongServiceCollaborator implements SongMetadataCollaborator {
 
-    private final RestClient restClient;
+    private final RestClient.Builder restClientBuilder;
 
     @Override
     @RestClientRetryable
@@ -30,7 +30,7 @@ public class SongServiceCollaborator implements SongMetadataCollaborator {
 
         Assert.notNull(songMetadataDto, "songMetadataDto must not be null");
 
-        restClient
+        restClientBuilder.build()
                 .post()
                 .body(songMetadataDto)
                 .retrieve()
@@ -51,7 +51,7 @@ public class SongServiceCollaborator implements SongMetadataCollaborator {
 
         Assert.notNull(ids, "ids must not be null");
 
-        restClient
+        restClientBuilder.build()
                 .delete()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("id", ids)
@@ -62,8 +62,7 @@ public class SongServiceCollaborator implements SongMetadataCollaborator {
                             "Internal Song Service error occurred, while trying to delete metadata for song ids={}, statusCode: {}",
                             ids, response.getStatusCode());
                     throw new ExternalServiceException(
-                            "Internal Song Service error occurred, while trying to delete metadata for song ids=%s"
-                                    .formatted(ids));
+                            "Internal Song Service error occurred, while trying to delete metadata for song ids=%s".formatted(ids));
                 })
                 .body(SongsMetadataDeletedResponse.class);
     }
