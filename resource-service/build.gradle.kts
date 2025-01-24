@@ -36,7 +36,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-	implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
 	implementation("org.springframework.retry:spring-retry:$springRetryVersion")
 
 	implementation("org.apache.tika:tika-core:$tikaVersion")

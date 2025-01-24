@@ -13,6 +13,7 @@ import com.epam.learn.microcervices.resourceservice.collaborator.dto.SongsMetada
 import com.epam.learn.microcervices.resourceservice.configuration.RestClientRetryable;
 import com.epam.learn.microcervices.resourceservice.dto.SongMetadataDto;
 import com.epam.learn.microcervices.resourceservice.exception.ExternalServiceException;
+import com.epam.learn.microcervices.resourceservice.exception.SongServiceClientException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -57,12 +58,21 @@ public class SongServiceCollaborator implements SongMetadataCollaborator {
                         .queryParam("id", ids)
                         .build())
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    log.error(
+                            "Internal Song Service Client error occurred, while trying to delete metadata for song ids={}, error code: {}, error text:{}",
+                            ids, response.getStatusCode(), response.getStatusText());
+                    throw new SongServiceClientException(
+                            "Internal Song Service Client error occurred, while trying to delete metadata for song ids=%s, error code: %s, error text: %s".formatted(
+                                    ids, response.getStatusCode(), response.getStatusText()));
+                })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     log.error(
                             "Internal Song Service error occurred, while trying to delete metadata for song ids={}, statusCode: {}",
                             ids, response.getStatusCode());
                     throw new ExternalServiceException(
-                            "Internal Song Service error occurred, while trying to delete metadata for song ids=%s".formatted(ids));
+                            "Internal Song Service error occurred, while trying to delete metadata for song ids=%s".formatted(
+                                    ids));
                 })
                 .body(SongsMetadataDeletedResponse.class);
     }

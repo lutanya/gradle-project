@@ -2,6 +2,7 @@ package com.epam.learn.microcervices.resourceservice.service;
 
 import java.util.List;
 
+import org.apache.tika.metadata.Metadata;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -26,11 +27,14 @@ public class ResourceServiceImpl implements ResourceService {
 
         Assert.notNull(audioData, "audioData must not be null");
 
+        final Metadata metadata = songMetadataService.extractSongMetadata(audioData);
+        songMetadataService.validateMetadata(metadata);
+
         final Resource resource = Resource.builder()
                 .content(audioData)
                 .build();
         final Resource savedResource = resourceRepository.save(resource);
-        songMetadataService.saveSongMetadata(savedResource);
+        songMetadataService.saveSongMetadata(savedResource, metadata);
         return savedResource.getId();
     }
 

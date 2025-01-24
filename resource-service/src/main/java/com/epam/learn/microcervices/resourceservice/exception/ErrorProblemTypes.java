@@ -20,10 +20,20 @@ public enum ErrorProblemTypes {
             "Unexpected external server error occurred. Please contact service administrator for more details.",
             500
     ),
+    CLIENT_SIDE_ERROR(
+            "Unexpected client side error",
+            "Unexpected client side error occurred. Please contact service administrator for more details.",
+            400
+    ),
     NOT_FOUND_ERROR(
             "Resource not found",
             "Requested resource not found",
             404
+    ),
+    METADATA_INVALID_ERROR(
+            "Song metadata invalid",
+            "Please check song metadata details.",
+            400
     );
 
     private final String title;

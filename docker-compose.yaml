@@ -6,6 +6,17 @@ services:
         ports:
             - "8761:8761"
 
+    gateway-service:
+        build:
+            context: ./gateway-service
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        environment:
+            EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT_ZONE}
+            RESOURCE_SERVICE_EUREKA_HOSTNAME: ${RESOURCE_SERVICE_EUREKA_HOSTNAME}
+            SONG_SERVICE_EUREKA_HOSTNAME: ${SONG_SERVICE_EUREKA_HOSTNAME}
+
     resource-service:
         build:
             context: ./resource-service
@@ -17,7 +28,8 @@ services:
             - resource_db
         environment:
             EUREKA_SERVER_DEFAULT_ZONE: ${EUREKA_SERVER_DEFAULT_ZONE}
-            SONG_SERVICE_BASE_URL: ${SONG_SERVICE_BASE_URL}
+            RESOURCE_SERVICE_EUREKA_HOSTNAME: ${RESOURCE_SERVICE_EUREKA_HOSTNAME}
+            GATEWAY_SERVICE_URL: ${GATEWAY_SERVICE_URL}
             RESOURCE_DB_URL: ${RESOURCE_DB_URL}
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -29,7 +41,8 @@ services:
         deploy:
             mode: replicated
             replicas: 2
-            endpoint_mode: vip
+        ports:
+            - "8282"
         depends_on:
             - song_db
         environment:

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
@@ -19,6 +20,7 @@ import com.epam.learn.microcervices.resourceservice.collaborator.SongServiceColl
 import com.epam.learn.microcervices.resourceservice.dao.entity.Resource;
 import com.epam.learn.microcervices.resourceservice.dto.SongMetadataDto;
 import com.epam.learn.microcervices.resourceservice.exception.InternalServiceException;
+import com.epam.learn.microcervices.resourceservice.exception.SongMetadataInvalidException;
 import com.epam.learn.microcervices.resourceservice.service.converter.SongMetadataConverter;
 
 import lombok.RequiredArgsConstructor;
@@ -33,11 +35,10 @@ public class SongMetadataServiceImpl implements SongMetadataService {
     private final SongMetadataConverter songMetadataConverter;
 
     @Override
-    public void saveSongMetadata(@NonNull final Resource resource) {
+    public void saveSongMetadata(@NonNull final Resource resource, @NonNull final Metadata metadata) {
 
         Assert.notNull(resource, "resource must not be null");
 
-        final Metadata metadata = extractSongMetadata(resource.getContent());
         final SongMetadataDto songMetadataDto = songMetadataConverter.convert(metadata, resource.getId());
         songServiceCollaborator.saveSongMetadata(songMetadataDto);
     }
@@ -50,7 +51,7 @@ public class SongMetadataServiceImpl implements SongMetadataService {
         songServiceCollaborator.deleteSongsMetadata(ids);
     }
 
-    private Metadata extractSongMetadata(@NonNull final byte[] audioData) {
+    public Metadata extractSongMetadata(@NonNull final byte[] audioData) {
 
         Assert.notNull(audioData, "audioData must not be null");
 
@@ -66,6 +67,18 @@ public class SongMetadataServiceImpl implements SongMetadataService {
         } catch (IOException | SAXException | TikaException e) {
             log.error("Error occurred while audioData parsing", e);
             throw new InternalServiceException("Error occurred while audioData parsing", e);
+        }
+    }
+
+    public void validateMetadata(@NonNull final Metadata metadata) {
+
+        if (ObjectUtils.isEmpty(metadata.get(SongMetadataConverter.SONG_ALBUM_METADATA_NAME))
+                || ObjectUtils.isEmpty(metadata.get(SongMetadataConverter.SONG_ARTIST_METADATA_NAME))
+                || ObjectUtils.isEmpty(metadata.get(SongMetadataConverter.SONG_DURATION_METADATA_NAME))
+                || ObjectUtils.isEmpty(metadata.get(SongMetadataConverter.SONG_TITLE_METADATA_NAME))
+                || ObjectUtils.isEmpty(metadata.get(SongMetadataConverter.SONG_YEAR_METADATA_NAME))) {
+            log.warn("Song metadata ({}) is invalid", metadata);
+            throw new SongMetadataInvalidException("Song metadata (%s) is invalid".formatted(metadata));
         }
     }
 }
