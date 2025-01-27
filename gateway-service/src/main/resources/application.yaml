@@ -13,6 +13,9 @@ spring:
                     predicates:
                         - Path=/songs/**
 
+server:
+    port: 8080
+
 eureka:
     client:
         service-url:

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.FieldError;
@@ -70,6 +71,18 @@ public class GlobalExceptionHandler {
                         ConstraintViolation::getMessage));
 
         return ResponseEntity.badRequest().body(buildValidationError(validationErrors));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetails> onHttpMessageNotReadableException(
+            HttpMessageNotReadableException exception) {
+
+        log.info("HttpMessageNotReadableException was detected: ", exception);
+        return ResponseEntity.badRequest()
+                .body(ProblemDetails.builder()
+                        .errorMessage(exception.getMessage())
+                        .errorCode("400")
+                        .build());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

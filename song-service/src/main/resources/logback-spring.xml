@@ -11,10 +11,7 @@
         </layout>
     </appender>
 
-    <logger name="org.springframework.cloud.client.discovery" level="WARN"/>
-    <logger name="com.netflix.discovery" level="INFO"/>
-
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="Console" />
     </root>
 

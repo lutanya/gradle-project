@@ -35,6 +35,14 @@ public class SongServiceCollaborator implements SongMetadataCollaborator {
                 .post()
                 .body(songMetadataDto)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    log.error(
+                            "Internal Song Service Client error occurred, while trying to save metadata for song id={}, error code: {}, error text:{}",
+                            songMetadataDto.id(), response.getStatusCode(), response.getStatusText());
+                    throw new SongServiceClientException(
+                            "Internal Song Service Client error occurred, while trying to save metadata for song id=%s, error code: %s, error text: %s".formatted(
+                                    songMetadataDto.id(), response.getStatusCode(), response.getStatusText()));
+                })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     log.error(
                             "Internal Song Service error occurred, while trying to save metadata for song id={}, statusCode: {}",
